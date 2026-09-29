@@ -3520,6 +3520,16 @@ void TabPrint::build()
         optgroup->append_single_option_line("flush_into_objects", "reduce-wasting-during-filament-change#wipe-into-object");
         optgroup->append_single_option_line("flush_into_support", "reduce-wasting-during-filament-change#wipe-into-support-enabled-by-default");
 
+        optgroup = page->new_optgroup(L("AeroWing"), L"param_special");
+        optgroup->append_single_option_line("aero_wing_mode");
+        optgroup->append_single_option_line("aero_wing_close_top");
+        optgroup->append_single_option_line("aero_wing_stiffener_orientation");
+        optgroup->append_single_option_line("aero_wing_stiffener_spacing");
+        optgroup->append_single_option_line("aero_wing_stiffener_angle");
+        optgroup->append_single_option_line("aero_wing_secondary_stiffeners");
+        optgroup->append_single_option_line("aero_wing_secondary_stiffener_spacing");
+        optgroup->append_single_option_line("aero_wing_secondary_stiffener_angle");
+
         optgroup = page->new_optgroup(L("Special mode"), L"param_special");
         optgroup->append_single_option_line("slicing_mode", "special-slicing-modes");
         optgroup->append_single_option_line("print_sequence", "sequent-print");

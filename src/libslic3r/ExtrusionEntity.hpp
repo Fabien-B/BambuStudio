@@ -81,7 +81,8 @@ enum ExtrusionLoopRole {
     elrContourInternalPerimeter    = 1 << 1,
     elrSkirt                       = 1 << 2,
     elrPerimeterHole               = 1 << 3,
-    elrSecondPerimeter             = 1 << 4
+    elrSecondPerimeter             = 1 << 4,
+    elrAeroWing                    = 1 << 5
 };
 
 inline ExtrusionLoopRole operator |(ExtrusionLoopRole a, ExtrusionLoopRole b) {

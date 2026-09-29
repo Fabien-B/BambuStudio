@@ -1,4 +1,16 @@
 get_filename_component(_TEST_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
+add_executable(aero_wing_tests
+    fff_print_tests.cpp
+    test_aero_wing.cpp
+    aero_wing_test_dependencies.cpp
+    ${PROJECT_SOURCE_DIR}/src/slic3r/Utils/BBLUtil.cpp
+    ${PROJECT_SOURCE_DIR}/src/slic3r/Utils/Http.cpp
+)
+target_include_directories(aero_wing_tests PRIVATE ${PROJECT_BINARY_DIR}/src/libslic3r)
+target_link_libraries(aero_wing_tests test_common libslic3r libcurl OpenSSL::SSL OpenSSL::Crypto)
+set_property(TARGET aero_wing_tests PROPERTY FOLDER "tests")
+add_test(NAME aero_wing_tests COMMAND aero_wing_tests)
+
 add_executable(${_TEST_NAME}_tests 
 	${_TEST_NAME}_tests.cpp
 	test_data.cpp

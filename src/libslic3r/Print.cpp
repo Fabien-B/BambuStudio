@@ -277,6 +277,7 @@ bool Print::invalidate_state_by_config_options(const ConfigOptionResolver & /* n
             // In Spiral Vase mode, holes are closed and only the largest area contour is kept at each layer.
             // Therefore toggling the Spiral Vase on / off requires complete reslicing.
             || opt_key == "spiral_mode"
+            || opt_key == "aero_wing_mode"
             || opt_key == "enable_order_independent_overlap_carving") {
             osteps.emplace_back(posSlice);
         } else if (
@@ -370,6 +371,13 @@ bool Print::invalidate_state_by_config_options(const ConfigOptionResolver & /* n
             osteps.emplace_back(posSimplifySupportPath);
         } else if (
                opt_key == "initial_layer_line_width"
+            || opt_key == "aero_wing_close_top"
+            || opt_key == "aero_wing_stiffener_orientation"
+            || opt_key == "aero_wing_stiffener_angle"
+            || opt_key == "aero_wing_stiffener_spacing"
+            || opt_key == "aero_wing_secondary_stiffeners"
+            || opt_key == "aero_wing_secondary_stiffener_spacing"
+            || opt_key == "aero_wing_secondary_stiffener_angle"
             || opt_key == "initial_layer_infill_line_width"
             || opt_key == "min_layer_height"
             || opt_key == "max_layer_height"
@@ -1381,6 +1389,9 @@ StringObjectException Print::validate(StringObjectException *warning, Polygons* 
             *warning               = warningtemp;
         }
     }
+
+    if (m_config.aero_wing_mode && !m_config.spiral_mode)
+        return {L("Enable Spiral vase to use AeroWing mode."), nullptr, "spiral_mode"};
 
     if (m_config.spiral_mode) {
         size_t total_copies_count = 0;

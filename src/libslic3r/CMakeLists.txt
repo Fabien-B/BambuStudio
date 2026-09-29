@@ -28,6 +28,8 @@ if (TARGET OpenVDB::openvdb)
 endif()
 
 set(lisbslic3r_sources
+    AeroWing/AeroWingGenerator.cpp
+    AeroWing/AeroWingGenerator.hpp
     ArcFitter.cpp
     ArcFitter.hpp
     pchheader.cpp

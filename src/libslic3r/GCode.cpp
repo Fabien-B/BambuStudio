@@ -4631,6 +4631,10 @@ GCode::LayerResult GCode::process_layer(
     m_enable_loop_clipping = true;
     if (m_spiral_vase && layers.size() == 1 && support_layer == nullptr) {
         bool enable = (layer.id() > 0 || !print.has_brim()) && (layer.id() >= (size_t)print.config().skirt_height.value && ! print.has_infinite_skirt());
+        // Keep the cap planar even when its cross-section is too narrow for infill.
+        if (print.config().aero_wing_mode && print.config().aero_wing_close_top &&
+            (layer.upper_layer == nullptr || layer.upper_layer->upper_layer == nullptr))
+            enable = false;
         if (enable) {
             for (const LayerRegion *layer_region : layer.regions())
                 if (size_t(layer_region->region().config().bottom_shell_layers.value) > layer.id() ||
@@ -6219,8 +6223,11 @@ std::string GCode::extrude_loop(ExtrusionLoop loop, std::string description, dou
         assert(m_layer != nullptr);
         bool is_outer_wall_first = m_config.wall_sequence == WallSequence::OuterInner;
         m_seam_placer.place_seam(m_layer, loop, is_outer_wall_first, this->last_pos(), satisfy_scarf_seam_angle_threshold);
-    } else
+    } else {
+        // Align successive spiral layers, including AeroWing. The last fin can
+        // change as the grid shifts, so its attachment is not a stable seam.
         loop.split_at(last_pos, false);
+    }
 
     // BBS: not apply on fist layer, too small E has stick issue with hotend plate
     bool override_filament_scarf_seam_setting = m_config.override_filament_scarf_seam_setting;

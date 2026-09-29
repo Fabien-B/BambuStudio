@@ -24,7 +24,8 @@ public:
         m_reader.z() = 0.0f;
         m_reader.apply_config(m_config);
         m_previous_layer = NULL;
-        m_smooth_spiral = config.spiral_mode_smooth;
+        // Nearest-segment smoothing can jump between the two sides of a fin.
+        m_smooth_spiral = config.spiral_mode_smooth && !config.aero_wing_mode;
     };
 
     void 		enable(bool en) {

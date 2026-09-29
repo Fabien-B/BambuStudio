@@ -5349,6 +5349,75 @@ void PrintConfigDef::init_fff_params()
     def->nullable = true;
     def->set_default_value(new ConfigOptionFloatsNullable{100});
 
+    def = this->add("aero_wing_mode", coBool);
+    def->label = L("Enable AeroWing mode");
+    def->category = L("Others");
+    def->tooltip = L("Enable AeroWing mode for internal wing stiffeners.");
+    def->mode = comSimple;
+    def->set_default_value(new ConfigOptionBool(false));
+
+    def = this->add("aero_wing_close_top", coBool);
+    def->label = L("Close top layer");
+    def->category = L("Others");
+    def->tooltip = L("Close the final two AeroWing layers with solid infill using the top surface settings. These layers are printed without spiral motion or stiffeners. Holes in the model remain open.");
+    def->mode = comSimple;
+    def->set_default_value(new ConfigOptionBool(false));
+
+    def = this->add("aero_wing_stiffener_orientation", coFloat);
+    def->label = L("Stiffener orientation");
+    def->category = L("Others");
+    def->tooltip = L("Orientation of all AeroWing stiffeners and hole connections around Z. 0 degrees points along +Y, +90 along -X, and -90 along +X. Both stiffener sets share this orientation; spacing and tilt follow the rotated axes.");
+    def->sidetext = L("°");
+    def->min = -180.;
+    def->max = 180.;
+    def->mode = comSimple;
+    def->set_default_value(new ConfigOptionFloat(0.));
+
+    def = this->add("aero_wing_stiffener_spacing", coFloat);
+    def->label = L("Stiffener spacing");
+    def->category = L("Others");
+    def->tooltip = L("Distance perpendicular to the stiffeners in each XY layer, along the rotated X axis. Stiffeners are repeated across the entire object with the configured tilt. Those without enough room are skipped.");
+    def->sidetext = L("mm");
+    def->min = 0.1;
+    def->mode = comSimple;
+    def->set_default_value(new ConfigOptionFloat(20.));
+
+    def = this->add("aero_wing_stiffener_angle", coFloat);
+    def->label = L("Stiffener angle");
+    def->category = L("Others");
+    def->tooltip = L("AeroWing stiffener tilt around the rotated Y axis, as set by Stiffener orientation. 0 degrees is vertical along Z. As height increases, positive angles shift the stiffener toward rotated +X and negative angles toward rotated -X, starting from the first spiral layer.");
+    def->sidetext = L("°");
+    def->min = -89.;
+    def->max = 89.;
+    def->mode = comSimple;
+    def->set_default_value(new ConfigOptionFloat(0.));
+
+    def = this->add("aero_wing_secondary_stiffeners", coBool);
+    def->label = L("Enable a second set of stiffeners");
+    def->category = L("Others");
+    def->tooltip = L("Add a second set of AeroWing stiffeners with its own spacing and tilt. Stiffeners that overlap or are too close on a layer are omitted to preserve the continuous path.");
+    def->mode = comSimple;
+    def->set_default_value(new ConfigOptionBool(false));
+
+    def = this->add("aero_wing_secondary_stiffener_spacing", coFloat);
+    def->label = L("Second set stiffener spacing");
+    def->category = L("Others");
+    def->tooltip = L("Distance along the rotated X axis between stiffeners in the second AeroWing set.");
+    def->sidetext = L("mm");
+    def->min = 0.1;
+    def->mode = comSimple;
+    def->set_default_value(new ConfigOptionFloat(20.));
+
+    def = this->add("aero_wing_secondary_stiffener_angle", coFloat);
+    def->label = L("Second set stiffener angle");
+    def->category = L("Others");
+    def->tooltip = L("Tilt of the second AeroWing stiffener set around the rotated Y axis, as set by Stiffener orientation. 0 degrees is vertical along Z. Positive angles shift toward rotated +X and negative angles toward rotated -X as height increases, starting from the first spiral layer.");
+    def->sidetext = L("°");
+    def->min = -89.;
+    def->max = 89.;
+    def->mode = comSimple;
+    def->set_default_value(new ConfigOptionFloat(-45.));
+
     def = this->add("spiral_mode", coBool);
     def->label = L("Spiral vase");
     def->tooltip = L("Spiralize smooths out the z moves of the outer contour. "

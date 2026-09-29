@@ -1921,6 +1921,14 @@ void PrintObject::detect_surfaces_type(std::vector<std::vector<SurfaceCollection
 	        	m_layers[num_layers - 1]->m_regions[region_id]->slices.set_type(stTop);
 	        for (size_t i = num_layers; i < m_layers.size(); ++ i)
 	        	m_layers[i]->m_regions[region_id]->slices.set_type(stInternal);
+            // AeroWing's optional cap occupies the final two layers; do not
+            // propagate top shells into the hollow spiral layers below it.
+            if (this->print()->config().aero_wing_mode && this->print()->config().aero_wing_close_top &&
+                m_layers.size() > num_layers) {
+                const size_t first_top_layer = std::max(num_layers, m_layers.size() > 2 ? m_layers.size() - 2 : size_t(0));
+                for (size_t i = first_top_layer; i < m_layers.size(); ++i)
+                    m_layers[i]->m_regions[region_id]->slices.set_type(stTop);
+            }
         }
 
         BOOST_LOG_TRIVIAL(debug) << "Detecting solid surfaces for region " << region_id << " - clipping in parallel - start";

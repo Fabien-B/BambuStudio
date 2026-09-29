@@ -993,7 +993,9 @@ void PerimeterGenerator::process_classic()
                             }
                         }
                     }
-                    if (m_spiral_vase && (offsets.size() > 1 || offsets_with_smaller_width.size() > 1)) {
+                    // AeroWing must see every resulting loop and reject an
+                    // incompatible section instead of silently losing a lobe.
+                    if (m_spiral_vase && !print_config->aero_wing_mode && (offsets.size() > 1 || offsets_with_smaller_width.size() > 1)) {
                         // Remove all but the largest area polygon.
                         keep_largest_contour_only(offsets);
                         //BBS

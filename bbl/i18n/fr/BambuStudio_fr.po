@@ -13,6 +13,63 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n==0 || n==1) ? 0 : 1;\n"
 "X-Generator: Poedit 3.4.2\n"
 
+msgid "AeroWing"
+msgstr "AeroWing"
+
+msgid "Enable AeroWing mode"
+msgstr "Activer le mode AeroWing"
+
+msgid "Enable AeroWing mode for internal wing stiffeners."
+msgstr "Activer le mode AeroWing pour les raidisseurs internes de l’aile."
+
+msgid "Enable a second set of stiffeners"
+msgstr "Activer une seconde série de raidisseurs"
+
+msgid "Add a second set of AeroWing stiffeners with its own spacing and tilt. Stiffeners that overlap or are too close on a layer are omitted to preserve the continuous path."
+msgstr "Ajouter une seconde série de raidisseurs AeroWing avec son propre espacement et sa propre inclinaison. Les raidisseurs superposés ou trop proches sur une couche sont omis pour préserver le parcours continu."
+
+msgid "Second set stiffener spacing"
+msgstr "Espacement des raidisseurs de la seconde série"
+
+msgid "Distance along X between stiffeners in the second AeroWing set."
+msgstr "Distance suivant X entre les raidisseurs de la seconde série AeroWing."
+
+msgid "Second set stiffener angle"
+msgstr "Angle des raidisseurs de la seconde série"
+
+msgid "Tilt of the second AeroWing stiffener set around Y. 0 degrees is vertical along Z. Positive angles shift toward +X and negative angles toward -X as height increases, starting from the first spiral layer."
+msgstr "Inclinaison de la seconde série de raidisseurs AeroWing autour de Y. À 0°, ils sont verticaux suivant Z. Les angles positifs les décalent vers +X et les angles négatifs vers -X lorsque la hauteur augmente, à partir de la première couche en spirale."
+
+msgid "Stiffener spacing"
+msgstr "Espacement entre les raidisseurs"
+
+msgid "Stiffener angle"
+msgstr "Angle du raidisseur"
+
+msgid "AeroWing stiffener tilt around the Y axis. 0 degrees is vertical along Z. As height increases, positive angles shift the stiffener toward +X and negative angles toward -X, starting from the first spiral layer."
+msgstr "Inclinaison du raidisseur AeroWing autour de l’axe Y. À 0°, il est vertical suivant Z. Lorsque la hauteur augmente, les angles positifs décalent le raidisseur vers +X et les angles négatifs vers -X, à partir de la première couche en spirale."
+
+msgid "Distance along X between parallel AeroWing stiffeners. Stiffeners are repeated across the entire object with the configured tilt. Those without enough room are skipped."
+msgstr "Distance suivant X entre les raidisseurs AeroWing parallèles. Les raidisseurs sont répétés sur tout l’objet avec l’inclinaison réglée. Ceux qui ne disposent pas d’assez de place sont omis."
+
+msgid "Enable Spiral vase to use AeroWing mode."
+msgstr "Activez le mode Vase en spirale pour utiliser le mode AeroWing."
+
+msgid "AeroWing requires a single connected cross-section on every spiral layer."
+msgstr "AeroWing nécessite une seule section connexe sur chaque couche en spirale."
+
+msgid "AeroWing requires one exterior perimeter and one perimeter per hole."
+msgstr "AeroWing nécessite un périmètre extérieur et un périmètre par trou."
+
+msgid "AeroWing could not connect every hole through the available material. Check the clearance between the contours."
+msgstr "AeroWing n’a pas pu raccorder tous les trous dans la matière disponible. Vérifiez l’espace entre les contours."
+
+msgid "AeroWing requires exactly one perimeter on every spiral layer."
+msgstr "AeroWing nécessite exactement un périmètre sur chaque couche en spirale."
+
+msgid "AeroWing could not fit a stiffener inside this cross-section. Use a wider section without holes or overhangs."
+msgstr "AeroWing n’a pas pu insérer de raidisseur dans cette section. Utilisez une section plus large, sans trou ni surplomb."
+
 msgid "The filament may not be compatible with the current machine settings. Generic filament presets will be used."
 msgstr "Le filament peut ne pas être compatible avec les réglages actuels de la machine. Les configurations génériques du filament seront utilisées."
 

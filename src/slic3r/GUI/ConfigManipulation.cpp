@@ -943,11 +943,23 @@ void ConfigManipulation::toggle_print_fff_options(DynamicPrintConfig *config, in
     bool lattice_options = have_infill && config->option<ConfigOptionEnum<InfillPattern>>("sparse_infill_pattern")->value == InfillPattern::ip2DLattice;
     for (auto el : {"sparse_infill_lattice_angle_1", "sparse_infill_lattice_angle_2"}) toggle_line(el, lattice_options);
 
+    toggle_field("aero_wing_close_top", config->opt_bool("aero_wing_mode"));
+    toggle_field("aero_wing_stiffener_orientation", config->opt_bool("aero_wing_mode"));
+    toggle_field("aero_wing_stiffener_spacing", config->opt_bool("aero_wing_mode"));
+    toggle_field("aero_wing_stiffener_angle", config->opt_bool("aero_wing_mode"));
+    toggle_field("aero_wing_secondary_stiffeners", config->opt_bool("aero_wing_mode"));
+    const bool secondary_stiffeners = config->opt_bool("aero_wing_mode") && config->opt_bool("aero_wing_secondary_stiffeners");
+    toggle_field("aero_wing_secondary_stiffener_spacing", secondary_stiffeners);
+    toggle_field("aero_wing_secondary_stiffener_angle", secondary_stiffeners);
+
     bool has_spiral_vase         = config->opt_bool("spiral_mode");
     toggle_line("spiral_mode_smooth", has_spiral_vase);
+    toggle_field("spiral_mode_smooth", !config->opt_bool("aero_wing_mode"));
+    toggle_field("spiral_mode_max_xy_smoothing", !config->opt_bool("aero_wing_mode"));
     toggle_line("spiral_mode_max_xy_smoothing", config->opt_bool("spiral_mode_smooth"));
     toggle_field("z_direction_outwall_speed_continuous", !has_spiral_vase);
-    bool has_top_solid_infill 	 = config->opt_int("top_shell_layers") > 0;
+    bool has_top_solid_infill 	 = config->opt_int("top_shell_layers") > 0 ||
+        (has_spiral_vase && config->opt_bool("aero_wing_mode") && config->opt_bool("aero_wing_close_top"));
     bool has_bottom_solid_infill = config->opt_int("bottom_shell_layers") > 0;
     bool has_solid_infill 		 = has_top_solid_infill || has_bottom_solid_infill;
     // solid_infill_filament uses the same logic as in Print::extruders()

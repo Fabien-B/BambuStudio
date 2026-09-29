@@ -1,4 +1,5 @@
 #include "Layer.hpp"
+#include "AeroWing/AeroWingGenerator.hpp"
 #include "BridgeDetector.hpp"
 #include "ClipperUtils.hpp"
 #include "Geometry.hpp"
@@ -136,11 +137,17 @@ void LayerRegion::make_perimeters(const SurfaceCollection &slices, const Perimet
     const PrintConfig &      print_config  = this->layer()->object()->print()->config();
     const PrintRegionConfig &region_config = this->region().config();
     const PrintObjectConfig& object_config = this->layer()->object()->config();
+    const bool aero_wing_top = print_config.aero_wing_mode && print_config.aero_wing_close_top &&
+                              (this->layer()->upper_layer == nullptr ||
+                               this->layer()->upper_layer->upper_layer == nullptr);
     // This needs to be in sync with PrintObject::_slice() slicing_mode_normal_below_layer!
-    bool spiral_mode = print_config.spiral_mode &&
+    bool spiral_mode = print_config.spiral_mode && !aero_wing_top &&
         //FIXME account for raft layers.
         (this->layer()->id() >= size_t(region_config.bottom_shell_layers.value) &&
          this->layer()->print_z >= region_config.bottom_shell_thickness - EPSILON);
+
+    if (print_config.aero_wing_mode && spiral_mode && slices.surfaces.size() != 1)
+        throw SlicingError(L("AeroWing requires a single connected cross-section on every spiral layer."));
 
     PerimeterGenerator g(
         // input:
@@ -177,6 +184,69 @@ void LayerRegion::make_perimeters(const SurfaceCollection &slices, const Perimet
         g.process_arachne();
     else
         g.process_classic();
+
+    if (print_config.aero_wing_mode && spiral_mode) {
+        std::vector<AeroWing::StiffenerGrid> grids {{print_config.aero_wing_stiffener_spacing.value,
+                                                   print_config.aero_wing_stiffener_angle.value}};
+        if (print_config.aero_wing_secondary_stiffeners)
+            grids.push_back({print_config.aero_wing_secondary_stiffener_spacing.value,
+                             print_config.aero_wing_secondary_stiffener_angle.value});
+        // Anchor the tilt at the first layer that actually receives a stiffener,
+        // accounting for both solid-bottom layer count and minimum thickness.
+        double first_spiral_z = this->layer()->slice_z;
+        for (const Layer *candidate : this->layer()->object()->layers()) {
+            if (candidate->id() >= size_t(region_config.bottom_shell_layers.value) &&
+                candidate->print_z >= region_config.bottom_shell_thickness - EPSILON) {
+                first_spiral_z = candidate->slice_z;
+                break;
+            }
+        }
+        if (!slices.surfaces.front().expolygon.holes.empty()) {
+            auto flattened = this->perimeters.flatten();
+            ExtrusionLoop *outer = nullptr;
+            std::vector<ExtrusionLoop> holes;
+            for (ExtrusionEntity *entity : flattened.entities) {
+                auto *loop = dynamic_cast<ExtrusionLoop *>(entity);
+                if (loop == nullptr)
+                    throw SlicingError(L("AeroWing requires one exterior perimeter and one perimeter per hole."));
+                if (loop->loop_role() & elrPerimeterHole)
+                    holes.push_back(*loop);
+                else if (outer == nullptr)
+                    outer = loop;
+                else
+                    throw SlicingError(L("AeroWing requires one exterior perimeter and one perimeter per hole."));
+            }
+            if (outer == nullptr || holes.size() != slices.surfaces.front().expolygon.holes.size() || !this->thin_fills.empty())
+                throw SlicingError(L("AeroWing requires one exterior perimeter and one perimeter per hole."));
+            if (!AeroWing::connect_holes(*outer, holes, grids, this->layer()->slice_z - first_spiral_z,
+                                         0, print_config.aero_wing_stiffener_orientation.value))
+                throw SlicingError(L("AeroWing could not connect every hole through the available material. Check the clearance between the contours."));
+            // Preserve the collection hierarchy expected by cooling assignment,
+            // but discard the old separate loops and their obsolete node ranges.
+            // The wrapper must be sortable so GCode::Region::append forwards its
+            // single loop to extrude_entity(), which cannot extrude a collection.
+            // Traversal order is held inside that loop, not by this wrapper.
+            ExtrusionEntityCollection joined;
+            joined.no_sort = false;
+            joined.loop_node_range = {0, 0};
+            joined.append(std::move(*outer));
+            this->perimeters.clear();
+            this->perimeters.append(std::move(joined));
+            return;
+        }
+        // Collections own their children; descend without flattening/copying.
+        ExtrusionEntity *entity = &this->perimeters;
+        while (auto *collection = dynamic_cast<ExtrusionEntityCollection *>(entity)) {
+            if (collection->entities.size() != 1)
+                throw SlicingError(L("AeroWing requires exactly one perimeter on every spiral layer."));
+            entity = collection->entities.front();
+        }
+        auto *loop = dynamic_cast<ExtrusionLoop *>(entity);
+        if (loop == nullptr || !this->thin_fills.entities.empty() ||
+            !AeroWing::add_stiffeners(*loop, grids, this->layer()->slice_z - first_spiral_z,
+                                         0, print_config.aero_wing_stiffener_orientation.value))
+            throw SlicingError(L("AeroWing could not fit a stiffener inside this cross-section. Use a wider section without holes or overhangs."));
+    }
 }
 
 
@@ -823,6 +893,9 @@ void LayerRegion::simplify_multi_path(ExtrusionMultiPath* multipath)
 
 void LayerRegion::simplify_loop(ExtrusionLoop* loop)
 {
+    // Preserve the narrow return and its repeated attachment point.
+    if (loop->loop_role() & elrAeroWing)
+        return;
     const auto print_config = this->layer()->object()->print()->config();
     const bool spiral_mode = print_config.spiral_mode;
     const bool enable_arc_fitting = print_config.enable_arc_fitting;

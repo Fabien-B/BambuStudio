@@ -170,7 +170,9 @@ static std::vector<VolumeSlices> slice_volumes_inner(
                     if (model_volume->is_model_part() && print_config.spiral_mode) {
                         auto it = std::find_if(layer_range.volume_regions.begin(), layer_range.volume_regions.end(),
                             [model_volume](const auto &slice){ return model_volume == slice.model_volume; });
-                        params.mode = MeshSlicingParams::SlicingMode::PositiveLargestContour;
+                        // Preserve holes/islands for AeroWing's input validation.
+                        params.mode = print_config.aero_wing_mode ? MeshSlicingParams::SlicingMode::Regular :
+                                                                  MeshSlicingParams::SlicingMode::PositiveLargestContour;
                         // Slice the bottom layers with SlicingMode::Regular.
                         // This needs to be in sync with LayerRegion::make_perimeters() spiral_mode!
                         const PrintRegionConfig &region_config = it->region->config();
